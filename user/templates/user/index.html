@@ -1,0 +1,582 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Community Members - SkillHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Page Header */
+    .users-header {
+        background: linear-gradient(135deg, var(--primary-dark), var(--primary-blue));
+        padding: 80px 0 40px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .users-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at top right, rgba(6, 182, 212, 0.2), transparent);
+    }
+
+    .header-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.6rem;
+        letter-spacing: -0.5px;
+    }
+
+    .page-description {
+        font-size: 1rem;
+        opacity: 0.9;
+        max-width: 600px;
+        line-height: 1.5;
+    }
+
+    .stats-row {
+        display: flex;
+        gap: 2rem;
+        margin-top: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .stat-box {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .stat-number {
+        font-size: 1.75rem;
+        font-weight: 800;
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        opacity: 0.9;
+    }
+
+    /* Search and Filter Section */
+    .search-filter-section {
+        background: white;
+        padding: 2rem 0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        position: sticky;
+        top: 70px;
+        z-index: 100;
+    }
+
+    .search-box {
+        position: relative;
+        max-width: 500px;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 0.75rem 1rem 0.75rem 2.75rem;
+        border: 2px solid var(--neutral-light);
+        border-radius: 12px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        background: var(--neutral-light);
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--accent-teal);
+        background: white;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--neutral-gray);
+        font-size: 1rem;
+    }
+
+    .filter-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        padding: 0.6rem 1.25rem;
+        border: 2px solid var(--neutral-light);
+        background: white;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .filter-btn:hover {
+        border-color: var(--accent-teal);
+        color: var(--accent-teal);
+        transform: translateY(-2px);
+    }
+
+    .filter-btn.active {
+        background: linear-gradient(135deg, var(--accent-coral), var(--accent-amber));
+        border-color: transparent;
+        color: white;
+    }
+
+    /* User Cards */
+    .users-section {
+        padding: 3rem 0;
+        background: var(--neutral-light);
+    }
+
+    .user-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .user-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        border-color: var(--accent-teal);
+    }
+
+    .user-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .user-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent-coral), var(--accent-amber));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white;
+        flex-shrink: 0;
+    }
+
+    .user-avatar img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .user-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .user-name {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-bottom: 0.25rem;
+        display: block;
+        text-decoration: none;
+    }
+
+    .user-name:hover {
+        color: var(--accent-teal);
+    }
+
+    .user-username {
+        font-size: 0.85rem;
+        color: var(--neutral-gray);
+    }
+
+    .user-bio {
+        color: var(--neutral-gray);
+        font-size: 0.875rem;
+        line-height: 1.5;
+        margin-bottom: 1rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .user-stats {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--neutral-light);
+    }
+
+    .stat-item {
+        text-align: center;
+        flex: 1;
+    }
+
+    .stat-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--primary-blue);
+        display: block;
+    }
+
+    .stat-label-small {
+        font-size: 0.75rem;
+        color: var(--neutral-gray);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .user-skills-preview {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin-bottom: 1rem;
+    }
+
+    .skill-tag {
+        background: var(--neutral-light);
+        padding: 0.3rem 0.75rem;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    .skill-tag-more {
+        background: linear-gradient(135deg, var(--accent-coral), var(--accent-amber));
+        color: white;
+    }
+
+    .user-card-footer {
+        margin-top: auto;
+        padding-top: 1rem;
+    }
+
+    .btn-view-profile {
+        width: 100%;
+        padding: 0.7rem;
+        background: linear-gradient(135deg, var(--primary-blue), var(--accent-teal));
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-view-profile:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(30, 95, 139, 0.3);
+        color: white;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        color: var(--neutral-gray);
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .empty-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-description {
+        color: var(--neutral-gray);
+        font-size: 0.95rem;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    /* Loading State */
+    .skeleton-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        height: 100%;
+    }
+
+    .skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s infinite;
+        border-radius: 8px;
+    }
+
+    @keyframes loading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
+    .skeleton-circle {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+    }
+
+    .skeleton-text {
+        height: 12px;
+        margin-bottom: 8px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .users-header {
+            padding: 70px 0 30px;
+        }
+
+        .page-title {
+            font-size: 1.625rem;
+        }
+
+        .search-filter-section {
+            padding: 1.5rem 0;
+            top: 60px;
+        }
+
+        .search-box {
+            max-width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .stats-row {
+            gap: 1rem;
+        }
+
+        .stat-box {
+            padding: 0.75rem 1rem;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            font-size: 1.25rem;
+        }
+
+        .users-section {
+            padding: 2rem 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="users-header">
+    <div class="container">
+        <div class="header-content">
+            <h1 class="page-title">Community Members</h1>
+            <p class="page-description">
+                Connect with talented individuals from our growing community. Browse profiles, discover skills, and start exchanging knowledge.
+            </p>
+            <div class="stats-row">
+                <div class="stat-box">
+                    <span class="stat-number">{{ total_users|default:"0" }}</span>
+                    <span class="stat-label">Total Members</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-number">{{ active_users|default:"0" }}</span>
+                    <span class="stat-label">Active Users</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Search and Filter Section -->
+<section class="search-filter-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6 mb-3 mb-md-0">
+                <form method="get" action="{% url 'user:index' %}">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon"></i>
+                        <input 
+                            type="text" 
+                            name="search" 
+                            class="search-input" 
+                            placeholder="Search by name or username..."
+                            value="{{ search_query }}"
+                        >
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-6">
+                <div class="filter-buttons justify-content-md-end d-flex">
+                    <a href="{% url 'user:index' %}?filter=recent{% if search_query %}&search={{ search_query }}{% endif %}" 
+                       class="filter-btn {% if filter_by == 'recent' or not filter_by %}active{% endif %}">
+                        <i class="fas fa-clock me-1"></i> Recent
+                    </a>
+                    <a href="{% url 'user:index' %}?filter=active{% if search_query %}&search={{ search_query }}{% endif %}" 
+                       class="filter-btn {% if filter_by == 'active' %}active{% endif %}">
+                        <i class="fas fa-fire me-1"></i> Most Active
+                    </a>
+                    <a href="{% url 'user:index' %}?filter=alphabetical{% if search_query %}&search={{ search_query }}{% endif %}" 
+                       class="filter-btn {% if filter_by == 'alphabetical' %}active{% endif %}">
+                        <i class="fas fa-sort-alpha-down me-1"></i> A-Z
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Users Grid -->
+<section class="users-section">
+    <div class="container">
+        {% if users %}
+            <div class="row g-4">
+                {% for user in users %}
+                <div class="col-lg-4 col-md-6">
+                    <div class="user-card">
+                        <div class="user-header">
+                            <div class="user-avatar">
+                                {% if user.profile.avatar %}
+                                    <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}">
+                                {% else %}
+                                    {{ user.username|first|upper }}
+                                {% endif %}
+                            </div>
+                            <div class="user-info">
+                                <a href="{% url 'user:profile' user.username %}" class="user-name">
+                                    {{ user.get_full_name|default:user.username }}
+                                </a>
+                                <div class="user-username">@{{ user.username }}</div>
+                            </div>
+                        </div>
+
+                        {% if user.profile.bio %}
+                        <p class="user-bio">
+                            {{ user.profile.bio }}
+                        </p>
+                        {% endif %}
+
+                        <div class="user-stats">
+                            <div class="stat-item">
+                                <span class="stat-value">{{ user.skill_count|default:"0" }}</span>
+                                <span class="stat-label-small">Skills</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-value">{{ user.exchange_count|default:"0" }}</span>
+                                <span class="stat-label-small">Exchanges</span>
+                            </div>
+                        </div>
+
+                        {% if user.skills.all %}
+                        <div class="user-skills-preview">
+                            {% for skill in user.skills.all|slice:":3" %}
+                            <span class="skill-tag">{{ skill.title }}</span>
+                            {% endfor %}
+                            {% if user.skills.count > 3 %}
+                            <span class="skill-tag skill-tag-more">+{{ user.skills.count|add:"-3" }} more</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        <div class="user-card-footer">
+                            <a href="{% url 'user:profile' user.username %}" class="btn-view-profile">
+                                View Profile <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- Empty State -->
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3 class="empty-title">No Members Found</h3>
+                <p class="empty-description">
+                    {% if search_query %}
+                        No users match your search "{{ search_query }}". Try a different search term.
+                    {% else %}
+                        There are no community members yet. Be the first to join!
+                    {% endif %}
+                </p>
+                {% if search_query %}
+                <a href="{% url 'user:index' %}" class="btn-view-profile" style="max-width: 200px; margin: 1rem auto 0;">
+                    Clear Search
+                </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-submit search form on input (with debounce)
+    const searchInput = document.querySelector('.search-input');
+    let searchTimeout;
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                this.form.submit();
+            }, 500);
+        });
+    }
+
+    // Add loading state when filtering
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            // Add loading indicator
+            const icon = this.querySelector('i');
+            if (icon) {
+                icon.className = 'fas fa-spinner fa-spin me-1';
+            }
+        });
+    });
+</script>
+{% endblock %}

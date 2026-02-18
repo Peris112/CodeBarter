@@ -1,0 +1,489 @@
+{% extends 'base.html' %}
+
+{% block title %}My Skills - SkillHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    .my-skills-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .skills-stats {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-box {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        flex: 1;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        text-align: center;
+    }
+
+    .stat-box i {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-box.active {
+        color: var(--accent-teal);
+    }
+
+    .stat-box.pending {
+        color: var(--accent-amber);
+    }
+
+    .stat-box.total {
+        color: var(--primary-blue);
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        display: block;
+    }
+
+    .stat-label {
+        color: var(--neutral-gray);
+        font-size: 0.95rem;
+    }
+
+    .my-skill-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        border-left: 4px solid var(--accent-teal);
+    }
+
+    .my-skill-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .my-skill-card.inactive {
+        opacity: 0.6;
+        border-left-color: var(--neutral-gray);
+    }
+
+    .skill-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 1rem;
+    }
+
+    .skill-info {
+        flex: 1;
+    }
+
+    .skill-badge {
+        display: inline-block;
+        padding: 0.3rem 1rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-right: 0.5rem;
+    }
+
+    .badge-active {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .badge-inactive {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .skill-category-badge {
+        background: var(--neutral-light);
+        color: var(--text-dark);
+    }
+
+    .my-skill-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0.5rem 0;
+        color: var(--primary-dark);
+    }
+
+    .skill-metrics {
+        display: flex;
+        gap: 2rem;
+        margin: 1rem 0;
+        color: var(--neutral-gray);
+        font-size: 0.95rem;
+    }
+
+    .skill-metrics i {
+        color: var(--accent-teal);
+        margin-right: 0.3rem;
+    }
+
+    .skill-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-action {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-edit {
+        background: var(--accent-teal);
+        color: white;
+    }
+
+    .btn-edit:hover {
+        background: var(--primary-blue);
+        color: white;
+    }
+
+    .btn-toggle {
+        background: var(--neutral-light);
+        color: var(--text-dark);
+    }
+
+    .btn-toggle:hover {
+        background: var(--accent-amber);
+        color: white;
+    }
+
+    .btn-delete {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .btn-delete:hover {
+        background: #dc2626;
+        color: white;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .empty-state i {
+        font-size: 5rem;
+        color: var(--neutral-gray);
+        opacity: 0.3;
+        margin-bottom: 1.5rem;
+    }
+
+    .empty-state h3 {
+        color: var(--primary-dark);
+        margin-bottom: 1rem;
+    }
+
+    .empty-state p {
+        color: var(--neutral-gray);
+        margin-bottom: 2rem;
+    }
+
+    .tabs {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        border-bottom: 2px solid var(--neutral-light);
+    }
+
+    .tab {
+        padding: 0.8rem 1.5rem;
+        background: none;
+        border: none;
+        font-weight: 600;
+        color: var(--neutral-gray);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-bottom: 3px solid transparent;
+        margin-bottom: -2px;
+    }
+
+    .tab.active {
+        color: var(--accent-teal);
+        border-bottom-color: var(--accent-teal);
+    }
+
+    .tab:hover {
+        color: var(--primary-blue);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container">
+        <div class="page-header-content">
+            <div class="my-skills-header">
+                <div>
+                    <h1 class="page-title">My Skills</h1>
+                    <p class="page-description">
+                        Manage and track your listed skills
+                    </p>
+                </div>
+                <a href="{% url 'skills:add' %}" class="btn btn-primary-cta">
+                    <i class="fas fa-plus me-2"></i> Add New Skill
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Content -->
+<div class="content-section">
+    <div class="container">
+        <!-- Stats Row -->
+        <div class="skills-stats">
+            <div class="stat-box active">
+                <i class="fas fa-check-circle"></i>
+                <span class="stat-number">{{ active_count|default:"5" }}</span>
+                <span class="stat-label">Active Skills</span>
+            </div>
+            <div class="stat-box total">
+                <i class="fas fa-graduation-cap"></i>
+                <span class="stat-number">{{ total_count|default:"7" }}</span>
+                <span class="stat-label">Total Skills</span>
+            </div>
+            <div class="stat-box pending">
+                <i class="fas fa-users"></i>
+                <span class="stat-number">{{ requests_count|default:"12" }}</span>
+                <span class="stat-label">Pending Requests</span>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('all')">All Skills</button>
+            <button class="tab" onclick="showTab('active')">Active</button>
+            <button class="tab" onclick="showTab('inactive')">Inactive</button>
+        </div>
+
+        <!-- Skills List -->
+        <div id="skillsList">
+            {% if my_skills %}
+                {% for skill in my_skills %}
+                <div class="my-skill-card {% if not skill.is_active %}inactive{% endif %}" data-status="{% if skill.is_active %}active{% else %}inactive{% endif %}">
+                    <div class="skill-header-row">
+                        <div class="skill-info">
+                            <div>
+                                <span class="skill-badge {% if skill.is_active %}badge-active{% else %}badge-inactive{% endif %}">
+                                    {% if skill.is_active %}Active{% else %}Inactive{% endif %}
+                                </span>
+                                <span class="skill-badge skill-category-badge">{{ skill.category }}</span>
+                            </div>
+                            <h3 class="my-skill-title">{{ skill.title }}</h3>
+                            <p class="text-muted">{{ skill.description }}</p>
+                            <div class="skill-metrics">
+                                <span><i class="fas fa-eye"></i> {{ skill.views|default:"0" }} views</span>
+                                <span><i class="fas fa-users"></i> {{ skill.requests|default:"0" }} requests</span>
+                                <span><i class="fas fa-calendar"></i> Listed {{ skill.created_at|timesince|default:"2 weeks" }} ago</span>
+                            </div>
+                        </div>
+                        <div class="skill-actions">
+                            <a href="{% url 'skills:edit' skill.pk %}" class="btn-action btn-edit">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <button onclick="toggleSkill({{ skill.pk }})" class="btn-action btn-toggle">
+                                <i class="fas fa-toggle-{% if skill.is_active %}on{% else %}off{% endif %}"></i> 
+                                {% if skill.is_active %}Deactivate{% else %}Activate{% endif %}
+                            </button>
+                            <button onclick="deleteSkill({{ skill.pk }})" class="btn-action btn-delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <!-- Sample Data (Remove when you have real data) -->
+                <div class="my-skill-card" data-status="active">
+                    <div class="skill-header-row">
+                        <div class="skill-info">
+                            <div>
+                                <span class="skill-badge badge-active">Active</span>
+                                <span class="skill-badge skill-category-badge">Technology</span>
+                            </div>
+                            <h3 class="my-skill-title">Web Development with Django</h3>
+                            <p class="text-muted">Teach students how to build web applications using Django framework, covering models, views, templates, and deployment.</p>
+                            <div class="skill-metrics">
+                                <span><i class="fas fa-eye"></i> 234 views</span>
+                                <span><i class="fas fa-users"></i> 8 requests</span>
+                                <span><i class="fas fa-calendar"></i> Listed 2 weeks ago</span>
+                            </div>
+                        </div>
+                        <div class="skill-actions">
+                            <a href="{% url 'skills:edit' 1 %}" class="btn-action btn-edit">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <button onclick="toggleSkill(1)" class="btn-action btn-toggle">
+                                <i class="fas fa-toggle-on"></i> Deactivate
+                            </button>
+                            <button onclick="deleteSkill(1)" class="btn-action btn-delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="my-skill-card" data-status="active">
+                    <div class="skill-header-row">
+                        <div class="skill-info">
+                            <div>
+                                <span class="skill-badge badge-active">Active</span>
+                                <span class="skill-badge skill-category-badge">Creative</span>
+                            </div>
+                            <h3 class="my-skill-title">UI/UX Design Fundamentals</h3>
+                            <p class="text-muted">Guide learners through the principles of user interface and user experience design, including wireframing and prototyping.</p>
+                            <div class="skill-metrics">
+                                <span><i class="fas fa-eye"></i> 156 views</span>
+                                <span><i class="fas fa-users"></i> 4 requests</span>
+                                <span><i class="fas fa-calendar"></i> Listed 1 month ago</span>
+                            </div>
+                        </div>
+                        <div class="skill-actions">
+                            <a href="{% url 'skills:edit' 2 %}" class="btn-action btn-edit">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <button onclick="toggleSkill(2)" class="btn-action btn-toggle">
+                                <i class="fas fa-toggle-on"></i> Deactivate
+                            </button>
+                            <button onclick="deleteSkill(2)" class="btn-action btn-delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="my-skill-card inactive" data-status="inactive">
+                    <div class="skill-header-row">
+                        <div class="skill-info">
+                            <div>
+                                <span class="skill-badge badge-inactive">Inactive</span>
+                                <span class="skill-badge skill-category-badge">Business</span>
+                            </div>
+                            <h3 class="my-skill-title">Project Management Basics</h3>
+                            <p class="text-muted">Share project management techniques, tools, and best practices for successful project delivery.</p>
+                            <div class="skill-metrics">
+                                <span><i class="fas fa-eye"></i> 89 views</span>
+                                <span><i class="fas fa-users"></i> 0 requests</span>
+                                <span><i class="fas fa-calendar"></i> Listed 3 months ago</span>
+                            </div>
+                        </div>
+                        <div class="skill-actions">
+                            <a href="{% url 'skills:edit' 3 %}" class="btn-action btn-edit">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <button onclick="toggleSkill(3)" class="btn-action btn-toggle">
+                                <i class="fas fa-toggle-off"></i> Activate
+                            </button>
+                            <button onclick="deleteSkill(3)" class="btn-action btn-delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <i class="fas fa-graduation-cap"></i>
+                <h3>No Skills Found</h3>
+                <p>You haven't added any skills yet. Start sharing your expertise with the community!</p>
+                <a href="{% url 'skills:add' %}" class="btn btn-primary-cta">
+                    <i class="fas fa-plus me-2"></i> Add Your First Skill
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Tab switching
+    function showTab(status) {
+        const cards = document.querySelectorAll('.my-skill-card');
+        const tabs = document.querySelectorAll('.tab');
+        let visibleCount = 0;
+
+        // Update active tab
+        tabs.forEach(tab => tab.classList.remove('active'));
+        event.target.classList.add('active');
+
+        // Filter cards
+        cards.forEach(card => {
+            if (status === 'all' || card.dataset.status === status) {
+                card.style.display = 'block';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // Show empty state if no cards visible
+        document.getElementById('emptyState').style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+
+    // Toggle skill active/inactive
+    function toggleSkill(skillId) {
+        if (confirm('Are you sure you want to change the status of this skill?')) {
+            // In a real app, this would be an AJAX call to your backend
+            SkillHub.showToast('Skill status updated successfully!', 'success');
+            
+            // Here you would make an actual API call like:
+            // fetch(`/skills/${skillId}/toggle/`, { method: 'POST' })
+            //     .then(response => response.json())
+            //     .then(data => {
+            //         if (data.success) {
+            //             SkillHub.showToast('Skill status updated!', 'success');
+            //             location.reload();
+            //         }
+            //     });
+        }
+    }
+
+    // Delete skill
+    function deleteSkill(skillId) {
+        SkillHub.confirmAction(
+            'Are you sure you want to delete this skill? This action cannot be undone.',
+            function() {
+                // In a real app, this would be an AJAX call to your backend
+                SkillHub.showToast('Skill deleted successfully!', 'success');
+                
+                // Here you would make an actual API call like:
+                // fetch(`/skills/${skillId}/delete/`, { method: 'DELETE' })
+                //     .then(response => response.json())
+                //     .then(data => {
+                //         if (data.success) {
+                //             SkillHub.showToast('Skill deleted!', 'success');
+                //             location.reload();
+                //         }
+                //     });
+            }
+        );
+    }
+</script>
+{% endblock %}

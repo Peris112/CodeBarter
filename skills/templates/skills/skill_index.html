@@ -1,0 +1,599 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse Skills - SkillHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    .search-bar {
+        background: white;
+        border-radius: 50px;
+        padding: 1rem 2rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .search-bar input {
+        border: none;
+        outline: none;
+        font-size: 1.1rem;
+        width: 100%;
+    }
+
+    .filter-btn {
+        background: var(--neutral-light);
+        border: 2px solid transparent;
+        padding: 0.6rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        margin: 0.3rem;
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+        background: var(--accent-teal);
+        color: white;
+        border-color: var(--accent-teal);
+    }
+
+    .skill-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .skill-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        border-color: var(--accent-teal);
+    }
+
+    .skill-card-header {
+        padding: 1.5rem;
+        background: linear-gradient(135deg, var(--primary-dark), var(--primary-blue));
+        color: white;
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .skill-category {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.3rem 1rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .skill-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 0;
+    }
+
+    .skill-card-body {
+        padding: 1.5rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .skill-meta {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        color: var(--neutral-gray);
+    }
+
+    .skill-meta i {
+        color: var(--accent-teal);
+        margin-right: 0.3rem;
+    }
+
+    .skill-description {
+        color: var(--text-dark);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+        flex-grow: 1;
+    }
+
+    .skill-card-footer {
+        padding: 1rem 1.5rem;
+        background: var(--neutral-light);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+    }
+
+    .user-avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent-coral), var(--accent-amber));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+    }
+
+    .user-name {
+        font-weight: 600;
+        color: var(--text-dark);
+        font-size: 0.95rem;
+    }
+
+    .skill-rating {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .stars {
+        color: var(--accent-amber);
+    }
+
+    .btn-view-skill {
+        background: var(--accent-teal);
+        color: white;
+        padding: 0.6rem 1.5rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+
+    .btn-view-skill:hover {
+        background: var(--primary-blue);
+        color: white;
+        transform: translateX(3px);
+    }
+
+    .stats-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .stats-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--primary-blue);
+        display: block;
+    }
+
+    .stats-label {
+        color: var(--neutral-gray);
+        font-size: 0.95rem;
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 3rem;
+        color: var(--neutral-gray);
+    }
+
+    .no-results i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.3;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container">
+        <div class="page-header-content">
+            <h1 class="page-title">Browse Skills</h1>
+            <p class="page-description">
+                Discover talented individuals ready to share their expertise with you
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Skills Content -->
+<div class="content-section">
+    <div class="container">
+        <!-- Search and Stats Row -->
+        <div class="row mb-5">
+            <div class="col-lg-8 mb-4">
+                <div class="search-bar d-flex align-items-center">
+                    <i class="fas fa-search text-muted me-3"></i>
+                    <input type="text" id="searchInput" placeholder="Search for skills, e.g., Web Development, Cooking, Photography...">
+                    <button class="btn btn-primary-cta ms-3" onclick="searchSkills()">
+                        Search
+                    </button>
+                </div>
+
+                <!-- Filter Buttons -->
+                <div class="mb-4">
+                    <button class="filter-btn active" data-category="all" onclick="filterByCategory('all')">
+                        All Skills
+                    </button>
+                    <button class="filter-btn" data-category="technology" onclick="filterByCategory('technology')">
+                        Technology
+                    </button>
+                    <button class="filter-btn" data-category="creative" onclick="filterByCategory('creative')">
+                        Creative
+                    </button>
+                    <button class="filter-btn" data-category="business" onclick="filterByCategory('business')">
+                        Business
+                    </button>
+                    <button class="filter-btn" data-category="lifestyle" onclick="filterByCategory('lifestyle')">
+                        Lifestyle
+                    </button>
+                    <button class="filter-btn" data-category="language" onclick="filterByCategory('language')">
+                        Languages
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <div class="stats-card">
+                            <span class="stats-number">{{ total_skills|default:"523" }}</span>
+                            <span class="stats-label">Total Skills</span>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="stats-card">
+                            <span class="stats-number">{{ active_users|default:"1.2K" }}</span>
+                            <span class="stats-label">Active Teachers</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Skills Grid -->
+        <div class="row" id="skillsGrid">
+            {% if skills %}
+                {% for skill in skills %}
+                <div class="col-lg-4 col-md-6 mb-4 skill-item" data-category="{{ skill.category|lower }}">
+                    <div class="skill-card">
+                        <div class="skill-card-header">
+                            <div>
+                                <span class="skill-category">{{ skill.category }}</span>
+                            </div>
+                            <h3 class="skill-title">{{ skill.title }}</h3>
+                        </div>
+                        <div class="skill-card-body">
+                            <div class="skill-meta">
+                                <span><i class="fas fa-clock"></i> {{ skill.duration|default:"Flexible" }}</span>
+                                <span><i class="fas fa-signal"></i> {{ skill.level|default:"All Levels" }}</span>
+                            </div>
+                            <p class="skill-description">
+                                {{ skill.description|truncatewords:20 }}
+                            </p>
+                        </div>
+                        <div class="skill-card-footer">
+                            <div class="user-info">
+                                <div class="user-avatar">{{ skill.user.username.0|upper|default:"U" }}</div>
+                                <span class="user-name">{{ skill.user.username|default:"User" }}</span>
+                            </div>
+                            <a href="{% url 'skills:detail' skill.pk %}" class="btn-view-skill">
+                                View <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <!-- Sample Skills Data (Remove when you have real data) -->
+                <div class="col-lg-4 col-md-6 mb-4 skill-item" data-category="technology">
+                    <div class="skill-card">
+                        <div class="skill-card-header">
+                            <div>
+                                <span class="skill-category">Technology</span>
+                            </div>
+                            <h3 class="skill-title">Web Development with Django</h3>
+                        </div>
+                        <div class="skill-card-body">
+                            <div class="skill-meta">
+                                <span><i class="fas fa-clock"></i> 6-8 weeks</span>
+                                <span><i class="fas fa-signal"></i> Intermediate</span>
+                            </div>
+                            <p class="skill-description">
+                                Learn to build powerful web applications using Django framework. Cover models, views, templates, and deployment.
+                            </p>
+                        </div>
+                        <div class="skill-card-footer">
+                            <div class="user-info">
+                                <div class="user-avatar">A</div>
+                                <span class="user-name">Alex Chen</span>
+                            </div>
+                            <a href="{% url 'skills:details' 1 %}" class="btn-view-skill">
+                                View <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 mb-4 skill-item" data-category="creative">
+                    <div class="skill-card">
+                        <div class="skill-card-header">
+                            <div>
+                                <span class="skill-category">Creative</span>
+                            </div>
+                            <h3 class="skill-title">Digital Photography Basics</h3>
+                        </div>
+                        <div class="skill-card-body">
+                            <div class="skill-meta">
+                                <span><i class="fas fa-clock"></i> 4 weeks</span>
+                                <span><i class="fas fa-signal"></i> Beginner</span>
+                            </div>
+                            <p class="skill-description">
+                                Master the fundamentals of photography including composition, lighting, camera settings, and post-processing techniques.
+                            </p>
+                        </div>
+                        <div class="skill-card-footer">
+                            <div class="user-info">
+                                <div class="user-avatar">S</div>
+                                <span class="user-name">Sarah Miller</span>
+                            </div>
+                            <a href="{% url 'skills:details' 2 %}" class="btn-view-skill">
+                                View <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 mb-4 skill-item" data-category="business">
+                    <div class="skill-card">
+                        <div class="skill-card-header">
+                            <div>
+                                <span class="skill-category">Business</span>
+                            </div>
+                            <h3 class="skill-title">Digital Marketing Strategy</h3>
+                        </div>
+                        <div class="skill-card-body">
+                            <div class="skill-meta">
+                                <span><i class="fas fa-clock"></i> 5 weeks</span>
+                                <span><i class="fas fa-signal"></i> All Levels</span>
+                            </div>
+                            <p class="skill-description">
+                                Learn SEO, social media marketing, content strategy, and analytics to grow your online presence effectively.
+                            </p>
+                        </div>
+                        <div class="skill-card-footer">
+                            <div class="user-info">
+                                <div class="user-avatar">M</div>
+                                <span class="user-name">Mike Rodriguez</span>
+                            </div>
+                            <a href="{% url 'skills:details' 3 %}" class="btn-view-skill">
+                                View <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 mb-4 skill-item" data-category="language">
+                    <div class="skill-card">
+                        <div class="skill-card-header">
+                            <div>
+                                <span class="skill-category">Language</span>
+                            </div>
+                            <h3 class="skill-title">Spanish Conversation</h3>
+                        </div>
+                        <div class="skill-card-body">
+                            <div class="skill-meta">
+                                <span><i class="fas fa-clock"></i> Ongoing</span>
+                                <span><i class="fas fa-signal"></i> Beginner</span>
+                            </div>
+                            <p class="skill-description">
+                                Practice conversational Spanish in a friendly environment. Perfect for travelers and language enthusiasts.
+                            </p>
+                        </div>
+                        <div class="skill-card-footer">
+                            <div class="user-info">
+                                <div class="user-avatar">L</div>
+                                <span class="user-name">Luis Garcia</span>
+                            </div>
+                            <a href="{% url 'skills:details' 4 %}" class="btn-view-skill">
+                                View <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 mb-4 skill-item" data-category="lifestyle">
+                    <div class="skill-card">
+                        <div class="skill-card-header">
+                            <div>
+                                <span class="skill-category">Lifestyle</span>
+                            </div>
+                            <h3 class="skill-title">Yoga & Meditation</h3>
+                        </div>
+                        <div class="skill-card-body">
+                            <div class="skill-meta">
+                                <span><i class="fas fa-clock"></i> Flexible</span>
+                                <span><i class="fas fa-signal"></i> All Levels</span>
+                            </div>
+                            <p class="skill-description">
+                                Reduce stress and improve flexibility through guided yoga sessions and mindfulness meditation practices.
+                            </p>
+                        </div>
+                        <div class="skill-card-footer">
+                            <div class="user-info">
+                                <div class="user-avatar">E</div>
+                                <span class="user-name">Emma Wilson</span>
+                            </div>
+                            <a href="{% url 'skills:details' 5 %}" class="btn-view-skill">
+                                View <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 mb-4 skill-item" data-category="technology">
+                    <div class="skill-card">
+                        <div class="skill-card-header">
+                            <div>
+                                <span class="skill-category">Technology</span>
+                            </div>
+                            <h3 class="skill-title">Machine Learning Fundamentals</h3>
+                        </div>
+                        <div class="skill-card-body">
+                            <div class="skill-meta">
+                                <span><i class="fas fa-clock"></i> 10 weeks</span>
+                                <span><i class="fas fa-signal"></i> Advanced</span>
+                            </div>
+                            <p class="skill-description">
+                                Dive into ML algorithms, neural networks, and practical applications using Python and popular libraries.
+                            </p>
+                        </div>
+                        <div class="skill-card-footer">
+                            <div class="user-info">
+                                <div class="user-avatar">D</div>
+                                <span class="user-name">David Kim</span>
+                            </div>
+                            <a href="{% url 'skills:details' 6 %}" class="btn-view-skill">
+                                View <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- No Results Message -->
+            <div class="col-12 d-none" id="noResults">
+                <div class="no-results">
+                    <i class="fas fa-search"></i>
+                    <h3>No Skills Found</h3>
+                    <p>Try adjusting your search or filters to find what you're looking for.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination (if needed) -->
+        <div class="row mt-5">
+            <div class="col-12 text-center">
+                <nav>
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1">Previous</a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-content">
+            <h2 class="cta-title">Have a Skill to Share?</h2>
+            <p class="cta-description">
+                Join our community of teachers and help others learn something new. 
+                List your skills and start connecting with eager learners.
+            </p>
+            <a href="{% url 'skills:add' %}" class="btn btn-primary-cta">
+                Add Your Skill <i class="fas fa-plus ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Search functionality
+    function searchSkills() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const skillItems = document.querySelectorAll('.skill-item');
+        let visibleCount = 0;
+
+        skillItems.forEach(item => {
+            const title = item.querySelector('.skill-title').textContent.toLowerCase();
+            const description = item.querySelector('.skill-description').textContent.toLowerCase();
+            
+            if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                item.style.display = 'block';
+                visibleCount++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+
+        // Show no results message if nothing found
+        document.getElementById('noResults').classList.toggle('d-none', visibleCount > 0);
+    }
+
+    // Search on Enter key
+    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            searchSkills();
+        }
+    });
+
+    // Filter by category
+    function filterByCategory(category) {
+        const skillItems = document.querySelectorAll('.skill-item');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        let visibleCount = 0;
+
+        // Update active button
+        filterBtns.forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.category === category) {
+                btn.classList.add('active');
+            }
+        });
+
+        // Filter skills
+        skillItems.forEach(item => {
+            if (category === 'all' || item.dataset.category === category) {
+                item.style.display = 'block';
+                visibleCount++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+
+        // Show no results message if nothing found
+        document.getElementById('noResults').classList.toggle('d-none', visibleCount > 0);
+    }
+
+    // Live search as user types
+    document.getElementById('searchInput').addEventListener('input', function() {
+        if (this.value.length > 2) {
+            searchSkills();
+        } else if (this.value.length === 0) {
+            // Reset to show all when search is cleared
+            document.querySelectorAll('.skill-item').forEach(item => {
+                item.style.display = 'block';
+            });
+            document.getElementById('noResults').classList.add('d-none');
+        }
+    });
+</script>
+{% endblock %}

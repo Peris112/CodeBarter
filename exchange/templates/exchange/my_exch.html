@@ -1,0 +1,613 @@
+{% extends 'base.html' %}
+
+{% block title %}My Exchanges - SkillHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-box-exchange {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-box-exchange::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+    }
+
+    .stat-box-exchange.teaching::before {
+        background: var(--accent-teal);
+    }
+
+    .stat-box-exchange.learning::before {
+        background: var(--accent-amber);
+    }
+
+    .stat-box-exchange.completed::before {
+        background: var(--primary-blue);
+    }
+
+    .stat-icon-big {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-icon-big.teaching { color: var(--accent-teal); }
+    .stat-icon-big.learning { color: var(--accent-amber); }
+    .stat-icon-big.completed { color: var(--primary-blue); }
+
+    .stat-number-big {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--primary-dark);
+        display: block;
+    }
+
+    .stat-text {
+        color: var(--neutral-gray);
+        font-size: 0.95rem;
+    }
+
+    .tabs-container {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        border-bottom: 2px solid var(--neutral-light);
+    }
+
+    .tab-btn {
+        padding: 1rem 2rem;
+        background: none;
+        border: none;
+        font-weight: 600;
+        color: var(--neutral-gray);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-bottom: 3px solid transparent;
+        margin-bottom: -2px;
+    }
+
+    .tab-btn.active {
+        color: var(--accent-teal);
+        border-bottom-color: var(--accent-teal);
+    }
+
+    .tab-btn:hover {
+        color: var(--primary-blue);
+    }
+
+    .my-exchange-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+
+    .my-exchange-card:hover {
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .exchange-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 1.5rem;
+    }
+
+    .exchange-badges {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .badge-pill {
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .badge-role {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .badge-status-active {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .badge-status-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .badge-status-completed {
+        background: #e0e7ff;
+        color: #4338ca;
+    }
+
+    .exchange-title-my {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .partner-info {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .partner-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent-teal), var(--primary-blue));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+    }
+
+    .partner-details h5 {
+        margin: 0;
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    .partner-details small {
+        color: var(--neutral-gray);
+    }
+
+    .progress-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .progress-label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .progress-bar-custom {
+        height: 8px;
+        background: var(--neutral-light);
+        border-radius: 50px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent-teal), var(--primary-blue));
+        border-radius: 50px;
+        transition: width 0.3s ease;
+    }
+
+    .exchange-actions-row {
+        display: flex;
+        gap: 0.8rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-action-exchange {
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .btn-view-detail {
+        background: var(--accent-teal);
+        color: white;
+    }
+
+    .btn-view-detail:hover {
+        background: var(--primary-blue);
+        color: white;
+    }
+
+    .btn-message-partner {
+        background: var(--neutral-light);
+        color: var(--text-dark);
+    }
+
+    .btn-message-partner:hover {
+        background: var(--primary-blue);
+        color: white;
+    }
+
+    .btn-complete {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .btn-complete:hover {
+        background: #059669;
+        color: white;
+    }
+
+    .btn-cancel-exchange {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .btn-cancel-exchange:hover {
+        background: #dc2626;
+        color: white;
+    }
+
+    .empty-exchanges {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .empty-exchanges i {
+        font-size: 5rem;
+        color: var(--neutral-gray);
+        opacity: 0.3;
+        margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .exchange-card-header {
+            flex-direction: column;
+        }
+
+        .exchange-actions-row {
+            flex-direction: column;
+        }
+
+        .btn-action-exchange {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container">
+        <div class="page-header-content">
+            <div class="page-actions">
+                <div>
+                    <h1 class="page-title">My Exchanges</h1>
+                    <p class="page-description">
+                        Manage your active skill exchanges and track your progress
+                    </p>
+                </div>
+                <a href="{% url 'exchanges:create' %}" class="btn btn-primary-cta">
+                    <i class="fas fa-plus me-2"></i> New Exchange
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Content -->
+<div class="content-section">
+    <div class="container">
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-box-exchange teaching">
+                <i class="fas fa-chalkboard-teacher stat-icon-big teaching"></i>
+                <span class="stat-number-big">{{ teaching_count|default:"3" }}</span>
+                <span class="stat-text">Teaching</span>
+            </div>
+            <div class="stat-box-exchange learning">
+                <i class="fas fa-graduation-cap stat-icon-big learning"></i>
+                <span class="stat-number-big">{{ learning_count|default:"2" }}</span>
+                <span class="stat-text">Learning</span>
+            </div>
+            <div class="stat-box-exchange completed">
+                <i class="fas fa-check-circle stat-icon-big completed"></i>
+                <span class="stat-number-big">{{ completed_count|default:"5" }}</span>
+                <span class="stat-text">Completed</span>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs-container">
+            <button class="tab-btn active" onclick="filterMyExchanges('all')">All Exchanges</button>
+            <button class="tab-btn" onclick="filterMyExchanges('active')">Active</button>
+            <button class="tab-btn" onclick="filterMyExchanges('pending')">Pending</button>
+            <button class="tab-btn" onclick="filterMyExchanges('completed')">Completed</button>
+        </div>
+
+        <!-- Exchanges List -->
+        <div id="myExchangesList">
+            {% if my_exchanges %}
+                {% for exchange in my_exchanges %}
+                <div class="my-exchange-card" data-status="{{ exchange.status }}">
+                    <!-- Card content here -->
+                </div>
+                {% endfor %}
+            {% else %}
+                <!-- Sample Data -->
+                <div class="my-exchange-card" data-status="active">
+                    <div class="exchange-card-header">
+                        <div>
+                            <div class="exchange-badges">
+                                <span class="badge-pill badge-role">Teaching</span>
+                                <span class="badge-pill badge-status-active">Active</span>
+                            </div>
+                            <h3 class="exchange-title-my">Teaching Django Web Development</h3>
+                        </div>
+                    </div>
+
+                    <div class="partner-info">
+                        <div class="partner-avatar">J</div>
+                        <div class="partner-details">
+                            <h5>Learning with John Smith</h5>
+                            <small>Started 3 weeks ago</small>
+                        </div>
+                    </div>
+
+                    <div class="progress-section">
+                        <div class="progress-label">
+                            <span>Progress</span>
+                            <span><strong>6/10</strong> sessions completed</span>
+                        </div>
+                        <div class="progress-bar-custom">
+                            <div class="progress-fill" style="width: 60%"></div>
+                        </div>
+                    </div>
+
+                    <div class="exchange-actions-row">
+                        <a href="{% url 'exchanges:detail' 1 %}" class="btn-action-exchange btn-view-detail">
+                            <i class="fas fa-eye"></i> View Details
+                        </a>
+                        <button class="btn-action-exchange btn-message-partner" onclick="messagePartner(1)">
+                            <i class="fas fa-comment"></i> Message
+                        </button>
+                        <button class="btn-action-exchange btn-complete" onclick="markComplete(1)">
+                            <i class="fas fa-check"></i> Mark Session Complete
+                        </button>
+                    </div>
+                </div>
+
+                <div class="my-exchange-card" data-status="active">
+                    <div class="exchange-card-header">
+                        <div>
+                            <div class="exchange-badges">
+                                <span class="badge-pill badge-role">Learning</span>
+                                <span class="badge-pill badge-status-active">Active</span>
+                            </div>
+                            <h3 class="exchange-title-my">Learning Spanish Conversation</h3>
+                        </div>
+                    </div>
+
+                    <div class="partner-info">
+                        <div class="partner-avatar">M</div>
+                        <div class="partner-details">
+                            <h5>Teaching from Maria Garcia</h5>
+                            <small>Started 2 weeks ago</small>
+                        </div>
+                    </div>
+
+                    <div class="progress-section">
+                        <div class="progress-label">
+                            <span>Progress</span>
+                            <span><strong>3/12</strong> sessions completed</span>
+                        </div>
+                        <div class="progress-bar-custom">
+                            <div class="progress-fill" style="width: 25%"></div>
+                        </div>
+                    </div>
+
+                    <div class="exchange-actions-row">
+                        <a href="{% url 'exchanges:detail' 2 %}" class="btn-action-exchange btn-view-detail">
+                            <i class="fas fa-eye"></i> View Details
+                        </a>
+                        <button class="btn-action-exchange btn-message-partner" onclick="messagePartner(2)">
+                            <i class="fas fa-comment"></i> Message
+                        </button>
+                        <button class="btn-action-exchange btn-complete" onclick="markComplete(2)">
+                            <i class="fas fa-check"></i> Mark Session Complete
+                        </button>
+                    </div>
+                </div>
+
+                <div class="my-exchange-card" data-status="pending">
+                    <div class="exchange-card-header">
+                        <div>
+                            <div class="exchange-badges">
+                                <span class="badge-pill badge-role">Teaching</span>
+                                <span class="badge-pill badge-status-pending">Pending Response</span>
+                            </div>
+                            <h3 class="exchange-title-my">Photography Basics Request</h3>
+                        </div>
+                    </div>
+
+                    <div class="partner-info">
+                        <div class="partner-avatar">S</div>
+                        <div class="partner-details">
+                            <h5>Request from Sarah Wilson</h5>
+                            <small>Received 2 days ago</small>
+                        </div>
+                    </div>
+
+                    <p class="text-muted mb-3">
+                        Sarah is interested in learning photography from you. Review the request and accept or decline.
+                    </p>
+
+                    <div class="exchange-actions-row">
+                        <a href="{% url 'exchanges:detail' 3 %}" class="btn-action-exchange btn-view-detail">
+                            <i class="fas fa-eye"></i> View Request
+                        </a>
+                        <button class="btn-action-exchange btn-complete" onclick="acceptRequest(3)">
+                            <i class="fas fa-check"></i> Accept
+                        </button>
+                        <button class="btn-action-exchange btn-cancel-exchange" onclick="declineRequest(3)">
+                            <i class="fas fa-times"></i> Decline
+                        </button>
+                    </div>
+                </div>
+
+                <div class="my-exchange-card" data-status="completed">
+                    <div class="exchange-card-header">
+                        <div>
+                            <div class="exchange-badges">
+                                <span class="badge-pill badge-role">Teaching</span>
+                                <span class="badge-pill badge-status-completed">Completed</span>
+                            </div>
+                            <h3 class="exchange-title-my">Python Programming Fundamentals</h3>
+                        </div>
+                    </div>
+
+                    <div class="partner-info">
+                        <div class="partner-avatar">D</div>
+                        <div class="partner-details">
+                            <h5>Completed with David Kim</h5>
+                            <small>Finished 1 month ago • 8 sessions</small>
+                        </div>
+                    </div>
+
+                    <div class="progress-section">
+                        <div class="progress-label">
+                            <span>Progress</span>
+                            <span><strong>8/8</strong> sessions completed</span>
+                        </div>
+                        <div class="progress-bar-custom">
+                            <div class="progress-fill" style="width: 100%"></div>
+                        </div>
+                    </div>
+
+                    <div class="exchange-actions-row">
+                        <a href="{% url 'exchanges:detail' 4 %}" class="btn-action-exchange btn-view-detail">
+                            <i class="fas fa-eye"></i> View Details
+                        </a>
+                        <button class="btn-action-exchange btn-message-partner" onclick="leaveReview(4)">
+                            <i class="fas fa-star"></i> Leave Review
+                        </button>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Empty State -->
+            <div id="emptyExchanges" class="empty-exchanges" style="display: none;">
+                <i class="fas fa-exchange-alt"></i>
+                <h3>No Exchanges Yet</h3>
+                <p>You haven't started any exchanges yet. Create your first exchange to begin learning or teaching!</p>
+                <a href="{% url 'exchanges:create' %}" class="btn btn-primary-cta mt-3">
+                    <i class="fas fa-plus me-2"></i> Create Your First Exchange
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Filter exchanges by status
+    function filterMyExchanges(status) {
+        const cards = document.querySelectorAll('.my-exchange-card');
+        const tabs = document.querySelectorAll('.tab-btn');
+        let visibleCount = 0;
+
+        // Update active tab
+        tabs.forEach(tab => tab.classList.remove('active'));
+        event.target.classList.add('active');
+
+        // Filter cards
+        cards.forEach(card => {
+            if (status === 'all' || card.dataset.status === status) {
+                card.style.display = 'block';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // Show empty state if needed
+        document.getElementById('emptyExchanges').style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+
+    // Message partner
+    function messagePartner(exchangeId) {
+        SkillHub.showToast('Opening message window...', 'info');
+        // In real app: window.location.href = `/messages/compose?exchange=${exchangeId}`;
+    }
+
+    // Mark session complete
+    function markComplete(exchangeId) {
+        SkillHub.confirmAction(
+            'Mark this session as complete?',
+            function() {
+                SkillHub.showToast('Session marked as complete!', 'success');
+                // In real app: Make AJAX call to update session
+            }
+        );
+    }
+
+    // Accept exchange request
+    function acceptRequest(exchangeId) {
+        SkillHub.confirmAction(
+            'Accept this exchange request?',
+            function() {
+                SkillHub.showToast('Request accepted! Exchange is now active.', 'success');
+                // In real app: Make AJAX call to accept
+                setTimeout(() => location.reload(), 1500);
+            }
+        );
+    }
+
+    // Decline exchange request
+    function declineRequest(exchangeId) {
+        SkillHub.confirmAction(
+            'Are you sure you want to decline this request?',
+            function() {
+                SkillHub.showToast('Request declined.', 'info');
+                // In real app: Make AJAX call to decline
+                setTimeout(() => location.reload(), 1500);
+            }
+        );
+    }
+
+    // Leave review
+    function leaveReview(exchangeId) {
+        SkillHub.showToast('Opening review form...', 'info');
+        // In real app: window.location.href = `/exchanges/${exchangeId}/review`;
+    }
+</script>
+{% endblock %}

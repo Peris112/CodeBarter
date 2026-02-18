@@ -1,0 +1,294 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Contact Us - SkillHub{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container">
+        <div class="page-header-content">
+            <h1 class="page-title">Get In Touch</h1>
+            <p class="page-description">
+                Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Contact Content -->
+<div class="content-section">
+    <div class="container">
+        <div class="row">
+            <!-- Contact Form -->
+            <div class="col-lg-8 mb-5">
+                <div class="card-custom">
+                    <div class="card-body p-5">
+                        <h3 class="mb-4 fw-bold">Send Us a Message</h3>
+                        
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <form method="post" action="{% url 'core:contact' %}" class="needs-validation" novalidate>
+                            {% csrf_token %}
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label for="name" class="form-label fw-semibold">Full Name *</label>
+                                    <input type="text" class="form-control form-control-lg" id="name" name="name" 
+                                           placeholder="John Doe" required>
+                                    <div class="invalid-feedback">
+                                        Please provide your name.
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-4">
+                                    <label for="email" class="form-label fw-semibold">Email Address *</label>
+                                    <input type="email" class="form-control form-control-lg" id="email" name="email" 
+                                           placeholder="john@example.com" required>
+                                    <div class="invalid-feedback">
+                                        Please provide a valid email address.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="subject" class="form-label fw-semibold">Subject *</label>
+                                <select class="form-select form-select-lg" id="subject" name="subject" required>
+                                    <option value="" selected disabled>Select a subject</option>
+                                    <option value="general">General Inquiry</option>
+                                    <option value="support">Technical Support</option>
+                                    <option value="partnership">Partnership Opportunity</option>
+                                    <option value="feedback">Feedback</option>
+                                    <option value="bug">Report a Bug</option>
+                                    <option value="other">Other</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please select a subject.
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="message" class="form-label fw-semibold">Message *</label>
+                                <textarea class="form-control form-control-lg" id="message" name="message" 
+                                          rows="6" placeholder="Tell us how we can help you..." required></textarea>
+                                <div class="invalid-feedback">
+                                    Please enter your message.
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="privacy" required>
+                                    <label class="form-check-label" for="privacy">
+                                        I agree to the <a href="#" class="text-decoration-none">Privacy Policy</a> 
+                                        and <a href="#" class="text-decoration-none">Terms of Service</a> *
+                                    </label>
+                                    <div class="invalid-feedback">
+                                        You must agree before submitting.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary-cta">
+                                Send Message <i class="fas fa-paper-plane ms-2"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="col-lg-4">
+                <div class="mb-4">
+                    <div class="card-custom">
+                        <div class="card-body p-4 text-center">
+                            <div class="feature-icon icon-core mx-auto mb-3">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <h5 class="fw-bold mb-2">Email Us</h5>
+                            <p class="text-muted mb-0">support@skillhub.com</p>
+                            <p class="text-muted">info@skillhub.com</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="card-custom">
+                        <div class="card-body p-4 text-center">
+                            <div class="feature-icon icon-skills mx-auto mb-3">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <h5 class="fw-bold mb-2">Call Us</h5>
+                            <p class="text-muted mb-0">+1 (555) 123-4567</p>
+                            <p class="text-muted small">Mon-Fri 9am-6pm EST</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="card-custom">
+                        <div class="card-body p-4 text-center">
+                            <div class="feature-icon icon-exchanges mx-auto mb-3">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <h5 class="fw-bold mb-2">Visit Us</h5>
+                            <p class="text-muted mb-0">123 Learning Street</p>
+                            <p class="text-muted mb-0">San Francisco, CA 94102</p>
+                            <p class="text-muted">United States</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="card-custom">
+                        <div class="card-body p-4 text-center">
+                            <div class="feature-icon icon-users mx-auto mb-3">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <h5 class="fw-bold mb-2">Live Chat</h5>
+                            <p class="text-muted mb-3">Available 24/7</p>
+                            <button class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-comment-dots me-2"></i>Start Chat
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-custom">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3 text-center">Follow Us</h5>
+                        <div class="d-flex justify-content-center gap-3">
+                            <a href="#" class="social-icon">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#" class="social-icon">
+                                <i class="fab fa-linkedin"></i>
+                            </a>
+                            <a href="#" class="social-icon">
+                                <i class="fab fa-github"></i>
+                            </a>
+                            <a href="#" class="social-icon">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="row mt-5 pt-5">
+            <div class="col-12 text-center mb-5">
+                <h2 class="section-title">Frequently Asked Questions</h2>
+                <p class="section-subtitle">
+                    Quick answers to common questions
+                </p>
+            </div>
+
+            <div class="col-lg-10 mx-auto">
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item border-0 mb-3 rounded-3 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button fw-semibold" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#faq1">
+                                How does SkillHub work?
+                            </button>
+                        </h2>
+                        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                SkillHub connects people who want to exchange skills. You can list skills you'd 
+                                like to teach and skills you'd like to learn. Our matching system helps you find 
+                                compatible learning partners, and you can schedule sessions directly through the platform.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item border-0 mb-3 rounded-3 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#faq2">
+                                Is SkillHub free to use?
+                            </button>
+                        </h2>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Yes! SkillHub offers a free tier that allows you to create a profile, list skills, 
+                                and participate in exchanges. We also offer premium features for users who want 
+                                additional benefits like priority matching and advanced analytics.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item border-0 mb-3 rounded-3 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#faq3">
+                                How do I ensure quality exchanges?
+                            </button>
+                        </h2>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                We have a comprehensive rating and review system. After each exchange, both 
+                                participants can rate their experience. We also offer skill verification badges 
+                                and encourage detailed profiles to help you make informed decisions.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item border-0 mb-3 rounded-3 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#faq4">
+                                Can I use SkillHub for professional development?
+                            </button>
+                        </h2>
+                        <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Absolutely! Many professionals use SkillHub to expand their skill set, learn new 
+                                technologies, or share their expertise. You can focus on professional skills like 
+                                programming, design, marketing, and more.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <p class="text-muted">
+                        Still have questions? 
+                        <a href="#" class="text-decoration-none fw-semibold" 
+                           onclick="document.getElementById('name').focus(); return false;">
+                            Send us a message
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Bootstrap form validation
+    (function () {
+        'use strict';
+        const forms = document.querySelectorAll('.needs-validation');
+        Array.from(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
+</script>
+{% endblock %}

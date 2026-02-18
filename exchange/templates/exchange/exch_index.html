@@ -1,0 +1,677 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse Exchanges - SkillHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    .filter-bar {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+    }
+
+    .filter-tabs {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-tab {
+        padding: 0.7rem 1.5rem;
+        background: var(--neutral-light);
+        border: 2px solid transparent;
+        border-radius: 50px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .filter-tab:hover, .filter-tab.active {
+        background: var(--accent-teal);
+        color: white;
+        border-color: var(--accent-teal);
+    }
+
+    .exchange-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        border-left: 4px solid var(--accent-teal);
+    }
+
+    .exchange-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .exchange-header {
+        padding: 1.5rem;
+        background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(30, 95, 139, 0.1));
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+    }
+
+    .exchange-type-badge {
+        display: inline-block;
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .badge-teaching {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .badge-learning {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .badge-both {
+        background: #e0e7ff;
+        color: #4338ca;
+    }
+
+    .exchange-status {
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .status-open {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-in-progress {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-completed {
+        background: #e0e7ff;
+        color: #4338ca;
+    }
+
+    .exchange-body {
+        padding: 1.5rem;
+    }
+
+    .exchange-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-bottom: 1rem;
+    }
+
+    .exchange-users {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .user-badge {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: var(--neutral-light);
+        border-radius: 50px;
+    }
+
+    .user-avatar-small {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent-coral), var(--accent-amber));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .exchange-arrow {
+        color: var(--accent-teal);
+        font-size: 1.2rem;
+    }
+
+    .exchange-skills {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .skill-box {
+        flex: 1;
+        padding: 1rem;
+        background: var(--neutral-light);
+        border-radius: 10px;
+    }
+
+    .skill-label {
+        font-size: 0.85rem;
+        color: var(--neutral-gray);
+        margin-bottom: 0.3rem;
+    }
+
+    .skill-name {
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    .exchange-meta {
+        display: flex;
+        gap: 2rem;
+        color: var(--neutral-gray);
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .exchange-meta i {
+        color: var(--accent-teal);
+        margin-right: 0.3rem;
+    }
+
+    .exchange-description {
+        color: var(--text-dark);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+
+    .exchange-footer {
+        padding: 1rem 1.5rem;
+        background: var(--neutral-light);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .btn-view-exchange {
+        padding: 0.6rem 1.5rem;
+        background: var(--accent-teal);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .btn-view-exchange:hover {
+        background: var(--primary-blue);
+        color: white;
+        transform: translateX(3px);
+    }
+
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card-small {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        text-align: center;
+    }
+
+    .stat-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-icon.open { color: var(--accent-teal); }
+    .stat-icon.progress { color: var(--accent-amber); }
+    .stat-icon.completed { color: var(--primary-blue); }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--primary-dark);
+        display: block;
+    }
+
+    .stat-label {
+        color: var(--neutral-gray);
+        font-size: 0.9rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .empty-state i {
+        font-size: 5rem;
+        color: var(--neutral-gray);
+        opacity: 0.3;
+        margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .exchange-skills {
+            flex-direction: column;
+        }
+
+        .exchange-users {
+            flex-direction: column;
+            align-items: start;
+        }
+
+        .exchange-meta {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="container">
+        <div class="page-header-content">
+            <h1 class="page-title">Browse Exchanges</h1>
+            <p class="page-description">
+                Find active skill exchange opportunities in the community
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Content -->
+<div class="content-section">
+    <div class="container">
+        <!-- Stats Row -->
+        <div class="stats-row">
+            <div class="stat-card-small">
+                <i class="fas fa-handshake stat-icon open"></i>
+                <span class="stat-value">{{ open_exchanges|default:"45" }}</span>
+                <span class="stat-label">Open Exchanges</span>
+            </div>
+            <div class="stat-card-small">
+                <i class="fas fa-sync-alt stat-icon progress"></i>
+                <span class="stat-value">{{ active_exchanges|default:"28" }}</span>
+                <span class="stat-label">In Progress</span>
+            </div>
+            <div class="stat-card-small">
+                <i class="fas fa-check-circle stat-icon completed"></i>
+                <span class="stat-value">{{ completed_exchanges|default:"156" }}</span>
+                <span class="stat-label">Completed</span>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-filter="all" onclick="filterExchanges('all')">
+                    All Exchanges
+                </button>
+                <button class="filter-tab" data-filter="teaching" onclick="filterExchanges('teaching')">
+                    Teaching Offers
+                </button>
+                <button class="filter-tab" data-filter="learning" onclick="filterExchanges('learning')">
+                    Learning Requests
+                </button>
+                <button class="filter-tab" data-filter="both" onclick="filterExchanges('both')">
+                    Mutual Exchange
+                </button>
+                <button class="filter-tab" data-filter="open" onclick="filterExchanges('open')">
+                    Open Only
+                </button>
+            </div>
+        </div>
+
+        <!-- Exchanges List -->
+        <div id="exchangesList">
+            {% if exchanges %}
+                {% for exchange in exchanges %}
+                <div class="exchange-card" data-type="{{ exchange.type }}" data-status="{{ exchange.status }}">
+                    <div class="exchange-header">
+                        <div>
+                            <span class="exchange-type-badge badge-{{ exchange.type }}">
+                                {% if exchange.type == 'teaching' %}
+                                    <i class="fas fa-chalkboard-teacher me-1"></i> Teaching
+                                {% elif exchange.type == 'learning' %}
+                                    <i class="fas fa-graduation-cap me-1"></i> Learning
+                                {% else %}
+                                    <i class="fas fa-exchange-alt me-1"></i> Mutual Exchange
+                                {% endif %}
+                            </span>
+                        </div>
+                        <span class="exchange-status status-{{ exchange.status }}">
+                            {{ exchange.status|title }}
+                        </span>
+                    </div>
+
+                    <div class="exchange-body">
+                        <h3 class="exchange-title">{{ exchange.title }}</h3>
+
+                        <div class="exchange-users">
+                            <div class="user-badge">
+                                <div class="user-avatar-small">{{ exchange.user1.username.0|upper }}</div>
+                                <span>{{ exchange.user1.username }}</span>
+                            </div>
+                            <i class="fas fa-arrow-right exchange-arrow"></i>
+                            <div class="user-badge">
+                                <div class="user-avatar-small">{{ exchange.user2.username.0|upper }}</div>
+                                <span>{{ exchange.user2.username }}</span>
+                            </div>
+                        </div>
+
+                        <div class="exchange-skills">
+                            <div class="skill-box">
+                                <div class="skill-label">Teaching</div>
+                                <div class="skill-name">{{ exchange.skill_teaching }}</div>
+                            </div>
+                            <div class="skill-box">
+                                <div class="skill-label">Learning</div>
+                                <div class="skill-name">{{ exchange.skill_learning }}</div>
+                            </div>
+                        </div>
+
+                        <div class="exchange-meta">
+                            <span><i class="fas fa-calendar"></i> Started {{ exchange.created_at|timesince }} ago</span>
+                            <span><i class="fas fa-clock"></i> {{ exchange.sessions_completed }}/{{ exchange.sessions_total }} sessions</span>
+                            <span><i class="fas fa-map-marker-alt"></i> {{ exchange.location }}</span>
+                        </div>
+
+                        <p class="exchange-description">
+                            {{ exchange.description|truncatewords:30 }}
+                        </p>
+                    </div>
+
+                    <div class="exchange-footer">
+                        <div>
+                            <small class="text-muted">Posted {{ exchange.created_at|timesince }} ago</small>
+                        </div>
+                        <a href="{% url 'exchanges:detail' exchange.pk %}" class="btn-view-exchange">
+                            View Details <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <!-- Sample Data (Remove when you have real data) -->
+                <div class="exchange-card" data-type="teaching" data-status="open">
+                    <div class="exchange-header">
+                        <div>
+                            <span class="exchange-type-badge badge-teaching">
+                                <i class="fas fa-chalkboard-teacher me-1"></i> Teaching
+                            </span>
+                        </div>
+                        <span class="exchange-status status-open">Open</span>
+                    </div>
+
+                    <div class="exchange-body">
+                        <h3 class="exchange-title">Django Web Development Training</h3>
+
+                        <div class="exchange-users">
+                            <div class="user-badge">
+                                <div class="user-avatar-small">A</div>
+                                <span>Alex Chen</span>
+                            </div>
+                            <i class="fas fa-arrow-right exchange-arrow"></i>
+                            <div class="user-badge">
+                                <div class="user-avatar-small">?</div>
+                                <span>Seeking Learner</span>
+                            </div>
+                        </div>
+
+                        <div class="exchange-skills">
+                            <div class="skill-box">
+                                <div class="skill-label">Teaching</div>
+                                <div class="skill-name">Web Development with Django</div>
+                            </div>
+                            <div class="skill-box">
+                                <div class="skill-label">Learning</div>
+                                <div class="skill-name">Open to offers</div>
+                            </div>
+                        </div>
+
+                        <div class="exchange-meta">
+                            <span><i class="fas fa-calendar"></i> Posted 2 days ago</span>
+                            <span><i class="fas fa-clock"></i> 8-10 weeks</span>
+                            <span><i class="fas fa-map-marker-alt"></i> Online</span>
+                        </div>
+
+                        <p class="exchange-description">
+                            Looking for a motivated learner to teach Django web development. Will cover everything from basics to deployment. Prefer someone interested in a long-term exchange.
+                        </p>
+                    </div>
+
+                    <div class="exchange-footer">
+                        <div>
+                            <small class="text-muted">Posted 2 days ago</small>
+                        </div>
+                        <a href="{% url 'exchange:details' 1 %}" class="btn-view-exchange">
+                            View Details <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="exchange-card" data-type="both" data-status="in-progress">
+                    <div class="exchange-header">
+                        <div>
+                            <span class="exchange-type-badge badge-both">
+                                <i class="fas fa-exchange-alt me-1"></i> Mutual Exchange
+                            </span>
+                        </div>
+                        <span class="exchange-status status-in-progress">In Progress</span>
+                    </div>
+
+                    <div class="exchange-body">
+                        <h3 class="exchange-title">Design for Development Skills Swap</h3>
+
+                        <div class="exchange-users">
+                            <div class="user-badge">
+                                <div class="user-avatar-small">S</div>
+                                <span>Sarah Miller</span>
+                            </div>
+                            <i class="fas fa-exchange-alt exchange-arrow"></i>
+                            <div class="user-badge">
+                                <div class="user-avatar-small">J</div>
+                                <span>John Doe</span>
+                            </div>
+                        </div>
+
+                        <div class="exchange-skills">
+                            <div class="skill-box">
+                                <div class="skill-label">Sarah teaches</div>
+                                <div class="skill-name">UI/UX Design</div>
+                            </div>
+                            <div class="skill-box">
+                                <div class="skill-label">John teaches</div>
+                                <div class="skill-name">Frontend Development</div>
+                            </div>
+                        </div>
+
+                        <div class="exchange-meta">
+                            <span><i class="fas fa-calendar"></i> Started 3 weeks ago</span>
+                            <span><i class="fas fa-clock"></i> 4/8 sessions</span>
+                            <span><i class="fas fa-map-marker-alt"></i> Online + In-person</span>
+                        </div>
+
+                        <p class="exchange-description">
+                            Perfect skill swap between a designer and developer. Sarah is learning React while teaching design principles. Great progress so far!
+                        </p>
+                    </div>
+
+                    <div class="exchange-footer">
+                        <div>
+                            <small class="text-muted">Started 3 weeks ago</small>
+                        </div>
+                        <a href="{% url 'exchange:details' 2 %}" class="btn-view-exchange">
+                            View Details <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="exchange-card" data-type="learning" data-status="open">
+                    <div class="exchange-header">
+                        <div>
+                            <span class="exchange-type-badge badge-learning">
+                                <i class="fas fa-graduation-cap me-1"></i> Learning
+                            </span>
+                        </div>
+                        <span class="exchange-status status-open">Open</span>
+                    </div>
+
+                    <div class="exchange-body">
+                        <h3 class="exchange-title">Seeking Spanish Conversation Partner</h3>
+
+                        <div class="exchange-users">
+                            <div class="user-badge">
+                                <div class="user-avatar-small">M</div>
+                                <span>Mike Rodriguez</span>
+                            </div>
+                            <i class="fas fa-arrow-left exchange-arrow"></i>
+                            <div class="user-badge">
+                                <div class="user-avatar-small">?</div>
+                                <span>Seeking Teacher</span>
+                            </div>
+                        </div>
+
+                        <div class="exchange-skills">
+                            <div class="skill-box">
+                                <div class="skill-label">Want to learn</div>
+                                <div class="skill-name">Spanish Conversation</div>
+                            </div>
+                            <div class="skill-box">
+                                <div class="skill-label">Can offer</div>
+                                <div class="skill-name">Digital Marketing</div>
+                            </div>
+                        </div>
+
+                        <div class="exchange-meta">
+                            <span><i class="fas fa-calendar"></i> Posted 1 week ago</span>
+                            <span><i class="fas fa-clock"></i> Flexible schedule</span>
+                            <span><i class="fas fa-map-marker-alt"></i> Online preferred</span>
+                        </div>
+
+                        <p class="exchange-description">
+                            Looking for a native Spanish speaker to practice conversation. Can teach digital marketing strategies in exchange. Flexible with timing.
+                        </p>
+                    </div>
+
+                    <div class="exchange-footer">
+                        <div>
+                            <small class="text-muted">Posted 1 week ago</small>
+                        </div>
+                        <a href="{% url 'exchange:details' 3 %}" class="btn-view-exchange">
+                            View Details <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <i class="fas fa-exchange-alt"></i>
+                <h3>No Exchanges Found</h3>
+                <p>Try adjusting your filters or create a new exchange to get started.</p>
+                <a href="{% url 'exchange:create' %}" class="btn btn-primary-cta mt-3">
+                    <i class="fas fa-plus me-2"></i> Create Exchange
+                </a>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <nav>
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1">Previous</a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-content">
+            <h2 class="cta-title">Ready to Start an Exchange?</h2>
+            <p class="cta-description">
+                Create your own exchange or respond to existing opportunities. 
+                Start learning and teaching today!
+            </p>
+            <a href="{% url 'exchange:create' %}" class="btn btn-primary-cta">
+                <i class="fas fa-plus me-2"></i> Create Exchange
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Filter exchanges
+    function filterExchanges(filter) {
+        const cards = document.querySelectorAll('.exchange-card');
+        const tabs = document.querySelectorAll('.filter-tab');
+        let visibleCount = 0;
+
+        // Update active tab
+        tabs.forEach(tab => {
+            tab.classList.remove('active');
+            if (tab.dataset.filter === filter) {
+                tab.classList.add('active');
+            }
+        });
+
+        // Filter cards
+        cards.forEach(card => {
+            let show = false;
+
+            if (filter === 'all') {
+                show = true;
+            } else if (filter === 'open') {
+                show = card.dataset.status === 'open';
+            } else {
+                show = card.dataset.type === filter;
+            }
+
+            if (show) {
+                card.style.display = 'block';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // Show empty state if no results
+        document.getElementById('emptyState').style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+</script>
+{% endblock %}

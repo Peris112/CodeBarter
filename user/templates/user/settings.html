@@ -1,0 +1,643 @@
+{% extends 'base.html' %}
+
+{% block title %}Settings - SkillHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    .settings-header {
+        padding: 2rem 0;
+        background: white;
+        border-bottom: 2px solid var(--neutral-light);
+        margin-bottom: 2rem;
+    }
+
+    .settings-title {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--primary-dark);
+    }
+
+    .settings-subtitle {
+        color: var(--neutral-gray);
+    }
+
+    .settings-sidebar {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        position: sticky;
+        top: 100px;
+    }
+
+    .settings-nav {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .settings-nav-item {
+        margin-bottom: 0.5rem;
+    }
+
+    .settings-nav-link {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        padding: 0.9rem 1.2rem;
+        color: var(--text-dark);
+        text-decoration: none;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .settings-nav-link:hover {
+        background: var(--neutral-light);
+        color: var(--accent-teal);
+    }
+
+    .settings-nav-link.active {
+        background: var(--accent-teal);
+        color: white;
+    }
+
+    .settings-nav-link i {
+        width: 20px;
+        text-align: center;
+    }
+
+    .settings-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+    }
+
+    .settings-section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .settings-section-desc {
+        color: var(--neutral-gray);
+        margin-bottom: 2rem;
+    }
+
+    .setting-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem;
+        background: var(--neutral-light);
+        border-radius: 10px;
+        margin-bottom: 1rem;
+    }
+
+    .setting-info h5 {
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 0.3rem;
+    }
+
+    .setting-info p {
+        color: var(--neutral-gray);
+        margin: 0;
+        font-size: 0.9rem;
+    }
+
+    .toggle-switch {
+        position: relative;
+        width: 60px;
+        height: 32px;
+    }
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: var(--neutral-gray);
+        transition: 0.4s;
+        border-radius: 34px;
+    }
+
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 24px;
+        width: 24px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+        background-color: var(--accent-teal);
+    }
+
+    .toggle-switch input:checked + .toggle-slider:before {
+        transform: translateX(28px);
+    }
+
+    .form-group-settings {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label-settings {
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control-settings {
+        width: 100%;
+        padding: 0.9rem 1.2rem;
+        border: 2px solid var(--neutral-light);
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control-settings:focus {
+        border-color: var(--accent-teal);
+        box-shadow: 0 0 0 0.2rem rgba(6, 182, 212, 0.15);
+        outline: none;
+    }
+
+    .btn-save-settings {
+        padding: 0.9rem 2.5rem;
+        background: linear-gradient(135deg, var(--accent-coral), var(--accent-amber));
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-save-settings:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+    }
+
+    .danger-zone {
+        background: #fee2e2;
+        border: 2px solid #fca5a5;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-top: 2rem;
+    }
+
+    .danger-zone h4 {
+        color: #991b1b;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .danger-zone p {
+        color: #7f1d1d;
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-danger {
+        padding: 0.8rem 2rem;
+        background: #dc2626;
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-danger:hover {
+        background: #991b1b;
+        transform: translateY(-2px);
+    }
+
+    .notification-group {
+        margin-bottom: 2rem;
+    }
+
+    .notification-group-title {
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+    }
+
+    .alert-settings {
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+    }
+
+    .alert-success-settings {
+        background: #d1fae5;
+        color: #065f46;
+        border: 1px solid #6ee7b7;
+    }
+
+    .password-requirements {
+        background: var(--neutral-light);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+
+    .password-requirements h6 {
+        font-weight: 700;
+        margin-bottom: 0.8rem;
+        font-size: 0.95rem;
+    }
+
+    .password-requirements ul {
+        margin: 0;
+        padding-left: 1.5rem;
+        font-size: 0.9rem;
+        color: var(--neutral-gray);
+    }
+
+    .password-requirements li {
+        margin-bottom: 0.3rem;
+    }
+
+    @media (max-width: 768px) {
+        .settings-sidebar {
+            position: static;
+            margin-bottom: 2rem;
+        }
+
+        .settings-card {
+            padding: 2rem 1.5rem;
+        }
+
+        .setting-item {
+            flex-direction: column;
+            align-items: start;
+            gap: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="settings-header">
+    <div class="container">
+        <h1 class="settings-title">Settings</h1>
+        <p class="settings-subtitle">Manage your account preferences and settings</p>
+    </div>
+</div>
+
+<!-- Content -->
+<div class="content-section">
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar Navigation -->
+            <div class="col-lg-3">
+                <div class="settings-sidebar">
+                    <ul class="settings-nav">
+                        <li class="settings-nav-item">
+                            <a href="#account" class="settings-nav-link active" onclick="showSection('account')">
+                                <i class="fas fa-user"></i> Account
+                            </a>
+                        </li>
+                        <li class="settings-nav-item">
+                            <a href="#privacy" class="settings-nav-link" onclick="showSection('privacy')">
+                                <i class="fas fa-shield-alt"></i> Privacy
+                            </a>
+                        </li>
+                        <li class="settings-nav-item">
+                            <a href="#notifications" class="settings-nav-link" onclick="showSection('notifications')">
+                                <i class="fas fa-bell"></i> Notifications
+                            </a>
+                        </li>
+                        <li class="settings-nav-item">
+                            <a href="#security" class="settings-nav-link" onclick="showSection('security')">
+                                <i class="fas fa-lock"></i> Security
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9">
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert-settings alert-{{ message.tags }}-settings">
+                        <i class="fas fa-check-circle me-2"></i>{{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                <!-- Account Settings -->
+                <div class="settings-section" id="account-section">
+                    <div class="settings-card">
+                        <h3 class="settings-section-title">Account Settings</h3>
+                        <p class="settings-section-desc">Update your account information and preferences</p>
+
+                        <form method="post" action="{% url 'users:settings' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="section" value="account">
+
+                            <div class="form-group-settings">
+                                <label class="form-label-settings">Email Address</label>
+                                <input type="email" class="form-control-settings" name="email" 
+                                       value="{{ user.email }}" required>
+                            </div>
+
+                            <div class="form-group-settings">
+                                <label class="form-label-settings">Username</label>
+                                <input type="text" class="form-control-settings" name="username" 
+                                       value="{{ user.username }}" required>
+                                <small class="text-muted">Changing your username will update your profile URL</small>
+                            </div>
+
+                            <div class="form-group-settings">
+                                <label class="form-label-settings">Time Zone</label>
+                                <select class="form-control-settings" name="timezone">
+                                    <option value="UTC">UTC (GMT+0)</option>
+                                    <option value="America/New_York">Eastern Time (GMT-5)</option>
+                                    <option value="America/Chicago">Central Time (GMT-6)</option>
+                                    <option value="America/Denver">Mountain Time (GMT-7)</option>
+                                    <option value="America/Los_Angeles" selected>Pacific Time (GMT-8)</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn-save-settings">
+                                <i class="fas fa-save me-2"></i> Save Changes
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Privacy Settings -->
+                <div class="settings-section" id="privacy-section" style="display: none;">
+                    <div class="settings-card">
+                        <h3 class="settings-section-title">Privacy Settings</h3>
+                        <p class="settings-section-desc">Control who can see your information</p>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h5>Profile Visibility</h5>
+                                <p>Make your profile visible to everyone on SkillHub</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h5>Show Email Address</h5>
+                                <p>Display your email on your public profile</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h5>Show Exchange History</h5>
+                                <p>Let others see your past skill exchanges</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h5>Allow Exchange Requests</h5>
+                                <p>Let other users send you exchange requests</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification Settings -->
+                <div class="settings-section" id="notifications-section" style="display: none;">
+                    <div class="settings-card">
+                        <h3 class="settings-section-title">Notification Settings</h3>
+                        <p class="settings-section-desc">Choose what updates you want to receive</p>
+
+                        <div class="notification-group">
+                            <h6 class="notification-group-title">Email Notifications</h6>
+
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h5>Exchange Requests</h5>
+                                    <p>Get notified when someone requests an exchange</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h5>New Messages</h5>
+                                    <p>Get notified when you receive a new message</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h5>Session Reminders</h5>
+                                    <p>Get reminded about upcoming sessions</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="notification-group">
+                            <h6 class="notification-group-title">Platform Updates</h6>
+
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h5>Weekly Summary</h5>
+                                    <p>Receive a weekly summary of your activities</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h5>Product Updates</h5>
+                                    <p>Stay informed about new features and updates</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Settings -->
+                <div class="settings-section" id="security-section" style="display: none;">
+                    <div class="settings-card">
+                        <h3 class="settings-section-title">Security Settings</h3>
+                        <p class="settings-section-desc">Manage your password and account security</p>
+
+                        <form method="post" action="{% url 'users:change_password' %}" id="passwordForm">
+                            {% csrf_token %}
+
+                            <div class="form-group-settings">
+                                <label class="form-label-settings">Current Password</label>
+                                <input type="password" class="form-control-settings" name="current_password" 
+                                       placeholder="Enter current password" required>
+                            </div>
+
+                            <div class="form-group-settings">
+                                <label class="form-label-settings">New Password</label>
+                                <input type="password" class="form-control-settings" name="new_password" 
+                                       placeholder="Enter new password" required id="newPassword">
+                            </div>
+
+                            <div class="form-group-settings">
+                                <label class="form-label-settings">Confirm New Password</label>
+                                <input type="password" class="form-control-settings" name="confirm_password" 
+                                       placeholder="Confirm new password" required id="confirmPassword">
+                            </div>
+
+                            <div class="password-requirements">
+                                <h6>Password Requirements:</h6>
+                                <ul>
+                                    <li>At least 8 characters long</li>
+                                    <li>Contains uppercase and lowercase letters</li>
+                                    <li>Contains at least one number</li>
+                                    <li>Contains at least one special character</li>
+                                </ul>
+                            </div>
+
+                            <button type="submit" class="btn-save-settings mt-3">
+                                <i class="fas fa-lock me-2"></i> Update Password
+                            </button>
+                        </form>
+
+                        <!-- Danger Zone -->
+                        <div class="danger-zone">
+                            <h4><i class="fas fa-exclamation-triangle me-2"></i> Danger Zone</h4>
+                            <p>Once you delete your account, there is no going back. Please be certain.</p>
+                            <button type="button" class="btn-danger" onclick="deleteAccount()">
+                                <i class="fas fa-trash me-2"></i> Delete Account
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Section navigation
+    function showSection(sectionName) {
+        // Hide all sections
+        document.querySelectorAll('.settings-section').forEach(section => {
+            section.style.display = 'none';
+        });
+
+        // Remove active class from all nav links
+        document.querySelectorAll('.settings-nav-link').forEach(link => {
+            link.classList.remove('active');
+        });
+
+        // Show selected section
+        document.getElementById(sectionName + '-section').style.display = 'block';
+
+        // Add active class to clicked nav link
+        event.target.closest('.settings-nav-link').classList.add('active');
+
+        // Prevent default anchor behavior
+        event.preventDefault();
+    }
+
+    // Password confirmation validation
+    document.getElementById('passwordForm').addEventListener('submit', function(e) {
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        if (newPassword !== confirmPassword) {
+            e.preventDefault();
+            alert('New passwords do not match!');
+            return false;
+        }
+    });
+
+    // Delete account confirmation
+    function deleteAccount() {
+        const confirmed = confirm(
+            'Are you absolutely sure you want to delete your account? ' +
+            'This will permanently delete all your data, including:\n\n' +
+            '• Your profile and skills\n' +
+            '• All your exchanges\n' +
+            '• Your messages and reviews\n\n' +
+            'This action cannot be undone!'
+        );
+
+        if (confirmed) {
+            const doubleConfirm = confirm(
+                'This is your last chance. Are you REALLY sure you want to delete your account?'
+            );
+
+            if (doubleConfirm) {
+                SkillHub.showToast('Deleting account...', 'info');
+                // In real app: submit delete form
+                // window.location.href = '{% url "users:delete_account" %}';
+            }
+        }
+    }
+
+    // Save toggle changes
+    document.querySelectorAll('.toggle-switch input').forEach(toggle => {
+        toggle.addEventListener('change', function() {
+            const setting = this.closest('.setting-item').querySelector('h5').textContent;
+            const status = this.checked ? 'enabled' : 'disabled';
+            SkillHub.showToast(`${setting} ${status}`, 'success');
+            
+            // In real app: send AJAX request to save setting
+        });
+    });
+</script>
+{% endblock %}
